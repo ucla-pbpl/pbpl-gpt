@@ -47,7 +47,9 @@ setup(
     ],
     entry_points = {
         'console_scripts':
-        ['pbpl-gpt-gdf2hdf = pbpl.gpt.gdf2hdf:main'],
+        ['pbpl-gpt-gdf2hdf = pbpl.gpt.gdf2hdf:main',
+         'pbpl-gpt-plot-phase-space = pbpl.gpt.plot_phase_space:main'
+        ],
     },
     console_scripts=[
         'bin/pbpl-gpt-gdf2hdf'
