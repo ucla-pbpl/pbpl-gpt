@@ -27,6 +27,7 @@ def get_parser():
         help='Optional derived quantities. Legal values: ' +
         'avg (all averaged quantities), std (all rms quantities), ' +
         'avgx, avgy, avgz, avgBx, avgBy, avgBz, avgG, avgp, ' +
+        'avgpx, avgpy, avgpz' +
         'stdx, stdy, stdz, stdBx, stdBy, stdBz, stdG')
     return parser
 
@@ -87,9 +88,30 @@ def scan_framed_gdf(filename):
     cols = dict(zip(cols, range(len(cols))))
     return time, cols, data
 
+def scan_local(local_vars, time, cols, data):
+    G = data[cols['G']]
+    Bx = data[cols['Bx']]
+    By = data[cols['By']]
+    Bz = data[cols['Bz']]
+    m = data[cols['m']]
+    nmacro = data[cols['nmacro']]
+    ntotal = nmacro.sum(1)
+    px = G * Bx * c_light
+    py = G * By * c_light
+    pz = G * Bz * c_light
+
+    avgpx = (nmacro * px).sum() / ntotal
+    avgpy = (nmacro * py).sum() / ntotal
+    avgpz = (nmacro * pz).sum() / ntotal
+
+    result_cols = dict(
+        zip(sorted(local_vars), range(len(local_vars))))
+    return result_cols, np.array([0.0, 0.0, 0.0])
+
 def main():
     args = get_args()
 
+    # x, y, z, G, Bx, By, Bz, rxy, m, q, nmacro, rmacro, ID
     time, cols, data = scan_framed_gdf(args.input)
 
     calc_vars = set(args.calc)
@@ -97,13 +119,20 @@ def main():
         if 'avg' in calc_vars:
             calc_vars.update(
                 ['avg' + x for x in
-                 ['x', 'y', 'z', 'r', 'Bx', 'By', 'Bz', 'G']])
+                 ['x', 'y', 'z', 'r', 'Bx', 'By', 'Bz', 'G',
+                  'px', 'py', 'pz']])
             calc_vars.remove('avg')
         if 'std' in calc_vars:
             calc_vars.update(
                 ['std' + x for x in
                  ['x', 'y', 'z', 'Bx', 'By', 'Bz', 'G']])
             calc_vars.remove('std')
+        available_local_vars = set(['avgpx', 'avgpy', 'avgpz'])
+        local_vars = calc_vars & available_local_vars
+        calc_vars -= available_local_vars
+
+        local_cols, local_data = scan_local(local_vars, time, cols, data)
+
         f = NamedTemporaryFile()
         calc_filename = f.name
         f.close()
@@ -119,6 +148,9 @@ def main():
     if len(calc_vars) > 0:
         for k, v in calc_cols.items():
             fout[k] = calc_data[v]
+    # if len(local_vars) > 0:
+    #     for k, v in local_cols.items():
+    #         fout[k] = local_data[v]
     fout.close()
 
 if __name__ == '__main__':
