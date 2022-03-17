@@ -1,0 +1,36 @@
+[input]
+i0 = 0                             # first sim step
+i1 = -1                            # final sim step ('-1' for until end)
+istep = 1                         # number of sim steps per frame
+num_particles = -1                 # num particles ('-1' for all)
+
+# The 'scale' parameter in xaxis and yaxis is a restricted Python expression
+# to be evaluated by asteval (https://newville.github.io/asteval/).
+# Available symbols:
+#    acos, acosh, etc. = symbols from math (see asteval docs)
+#    all units from pbpl.units
+#    avgpx, avgpy, avgpz
+#    m0, p0, beta0, gamma0 = reference trajectory parameters (updated
+#       each step)
+[xaxis]
+value = 'x/mm'
+title = '$x$ (mm)'
+min = -12.0
+max = 12.0
+
+[yaxis]
+value = 'y/mm'
+title = '$y$ (mm)'
+min = -12.0
+max = 12.0
+
+# value = '(z[step]-avgz[step])/um'
+# title = '$\zeta (\mu$m)'
+# min = -40.0
+# max = +40.0
+
+# [yaxis]
+# value = '1e3*(pz[step]-avgpz[step])/avgpz[step]'
+# title = '$10^3 \delta p / p_0$'
+# min = -1.0
+# max = +1.0

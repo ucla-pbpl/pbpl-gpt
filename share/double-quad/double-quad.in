@@ -1,0 +1,23 @@
+# Quadrupole focusing
+
+# Define beam parameters
+gamma = 7.849330014102718;
+radius= 6e-3;
+num_particles = 1000;
+
+# Start initial beam
+#setparticles("beam", num_particles, me, qe, 1e-62*num_particles*qe);
+setparticles("beam", num_particles, me, qe, -0.1e-9);
+setrxydist("beam", "u", radius/2, radius);
+
+spacecharge3D();
+
+setphidist("beam", "u", 0, 2*pi);
+setGdist("beam", "u", gamma, 0);
+
+# Position the quadrupole lenses
+quadrupole("wcs", "z", 0.1, 0.010, 5.3517);
+quadrupole("wcs", "z", 0.1+.0618, 0.010, -5.5353);
+
+# Specify output times
+snapshot(0, 5e-9, 0.025e-9);
